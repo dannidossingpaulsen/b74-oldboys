@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · B74 Oldboys</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <header class="hero">
+    <div class="eyebrow">Admin · uden login</div>
+    <h1>Kampkontoret</h1>
+    <p>Udfyld kampen med klik-af. Tryk derefter “Lav ny datafil” og erstat <code>data.js</code> på GitHub.</p>
+    <div class="hero-actions">
+      <a class="button ghost" href="index.html">Til forsiden</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="card notice">
+      <strong>Første version:</strong> Denne side gemmer ikke direkte online endnu. Den laver en ny <code>data.js</code>, som du uploader/indsætter på GitHub.
+    </section>
+
+    <section class="card">
+      <h2>1. Vælg kamp</h2>
+      <label for="matchSelect">Kamp</label>
+      <select id="matchSelect"></select>
+
+      <div class="form-grid">
+        <div>
+          <label for="scoreFor">B74-mål</label>
+          <input id="scoreFor" type="number" min="0">
+        </div>
+        <div>
+          <label for="scoreAgainst">Modstander-mål</label>
+          <input id="scoreAgainst" type="number" min="0">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Deltagere</h2>
+      <p class="small">Klik dem af, der spillede. Det er det eneste sted, “kampe spillet” kommer fra.</p>
+      <div id="participants" class="check-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>3. Målmand</h2>
+      <p class="small">Tilføj én målmand. Hvis to har delt kampen, kan du tilføje begge og fordele mål imod.</p>
+      <div id="goalkeeperRows" class="row-list"></div>
+      <button class="button" id="addGoalkeeper" type="button">+ Tilføj målmand</button>
+    </section>
+
+    <section class="grid two">
+      <article class="card">
+        <h2>4. Mål</h2>
+        <div id="goalsRows" class="row-list"></div>
+        <button class="button" id="addGoal" type="button">+ Tilføj mål</button>
+      </article>
+      <article class="card">
+        <h2>5. Assists</h2>
+        <div id="assistRows" class="row-list"></div>
+        <button class="button" id="addAssist" type="button">+ Tilføj assist</button>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>6. Bøhmænd</h2>
+      <div id="boehRows" class="row-list"></div>
+      <button class="button" id="addBoeh" type="button">+ Tilføj bøhmand</button>
+    </section>
+
+    <section class="card">
+      <h2>7. Øl</h2>
+      <p class="small">Kun relevant ved hjemmekampe, men systemet blander sig ikke.</p>
+      <div id="beerRows" class="row-list"></div>
+      <button class="button" id="addBeer" type="button">+ Tilføj ølmand</button>
+    </section>
+
+    <section class="card">
+      <h2>8. Lav ny datafil</h2>
+      <button class="button" id="generate" type="button">Lav ny data.js</button>
+      <button class="button ghost" id="download" type="button" disabled>Download data.js</button>
+      <p class="small">Når filen er lavet: Upload/erstat <code>data.js</code> i GitHub-repoet.</p>
+      <pre id="output"></pre>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

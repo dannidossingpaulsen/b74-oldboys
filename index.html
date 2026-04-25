@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B74 Oldboys Statistik</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">B74 Silkeborg Old Boys · 2026</div>
+    <h1>Statistikcentralen</h1>
+    <p>Statistik-side for Silkeborgs tungeste mandskab.</p>
+    <div class="hero-actions">
+      <a class="button" href="#stats">Se stats</a>
+      <a class="button ghost" href="admin.html">Admin</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="scoreboard" id="quickStats"></section>
+
+    <section class="grid two">
+      <article class="card" id="latestMatch"></article>
+      <article class="card" id="nextMatch"></article>
+    </section>
+
+    <section id="stats">
+      <h2>Toplister</h2>
+      <div class="grid five">
+        <article class="card"><h3>⚽ Topscorer</h3><div id="goalsTable"></div></article>
+        <article class="card"><h3>🎯 Assistkonger</h3><div id="assistsTable"></div></article>
+        <article class="card"><h3>🦾 Kampe</h3><div id="appearancesTable"></div></article>
+        <article class="card"><h3>🤡 Bøhmænd</h3><div id="boehmandTable"></div></article>
+        <article class="card"><h3>🍻 Øl-regnskab</h3><div id="beerTable"></div></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Målmandsstatistik</h2>
+      <div class="grid">
+  <article class="card" id="goalkeeperTable"></article>
+</div>
+    </section>
+
+    <section>
+      <h2>Kampprogram</h2>
+      <p class="section-link"><a href="https://minidraet.dgi.dk/forening/0663200/hold/312539" target="_blank" rel="noopener">Klik her for at se stillingen på DGIs hjemmeside</a></p>
+      <div class="card table-wrap">
+        <table id="fixturesTable"></table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Bøhmandsprotokol</h2>
+      <div class="card" id="boehmandLog"></div>
+    </section>
+  </main>
+
+  <footer>
+    Bygget til B74 Old Boys. Kreeret og opdateret af Danni “Muren” Paulsen.
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
