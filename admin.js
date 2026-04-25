@@ -23,7 +23,16 @@ function fmtDate(iso) {
 
 function setAdminVisible(isVisible) {
   document.querySelectorAll(".admin-panel").forEach((el) => {
-    el.style.display = isVisible ? "" : "none";
+    if (!isVisible) {
+      el.style.display = "none";
+      return;
+    }
+
+    if (el.classList.contains("grid")) {
+      el.style.display = "grid";
+    } else {
+      el.style.display = "block";
+    }
   });
 }
 
@@ -242,9 +251,9 @@ function updateLocalDataFromForm() {
 
   m.spillet = scoreFor !== "" && scoreAgainst !== "";
 
-  m.deltagere = [
-    ...document.querySelectorAll("#participants input:checked"),
-  ].map((cb) => cb.value);
+  m.deltagere = [...document.querySelectorAll("#participants input:checked")].map(
+    (cb) => cb.value
+  );
 
   m.maalmaend = getGoalkeeperValues();
   m.maal = getSelectValues("goalsRows");
