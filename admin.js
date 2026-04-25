@@ -1,14 +1,64 @@
-const data = structuredClone(window.B74_DATA);
-const players = data.players;
-const goalkeepers = data.goalkeepers || ["Danni","Ugle"];
+const CONFIG = window.B74_SUPABASE;
+let data = structuredClone(window.B74_DATA);
+let players = data.players;
+let goalkeepers = data.goalkeepers || ["Danni","Ugle"];
 const TEAM = "B74 Silkeborg";
-let generatedText = "";
+const sb = window.supabase.createClient(CONFIG.url, CONFIG.key);
 
 const matchSelect = document.getElementById("matchSelect");
 const participants = document.getElementById("participants");
+const loginStatus = document.getElementById("loginStatus");
+const saveStatus = document.getElementById("saveStatus");
 
 function matchName(m){ return `${m.hjemmehold} - ${m.udehold}`; }
 function fmtDate(iso){ return new Date(iso).toLocaleDateString("da-DK", {day:"2-digit", month:"short"}); }
+
+function setAdminVisible(isVisible) {
+  document.querySelectorAll(".admin-panel").forEach(el => {
+    el.style.display = isVisible ? "" : "none";
+  });
+}
+
+async function loadRemoteData() {
+  const { data: row, error } = await sb.from(CONFIG.table).select("data").eq("id", CONFIG.rowId).single();
+  if (!error && row && row.data && row.data.matches) {
+    data = structuredClone(row.data);
+    players = data.players;
+    goalkeepers = data.goalkeepers || ["Danni","Ugle"];
+  }
+}
+
+async function checkSession() {
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session?.user;
+  const ok = user && user.email === CONFIG.adminEmail;
+  document.getElementById("logoutButton").style.display = user ? "" : "none";
+  if (ok) {
+    loginStatus.textContent = `Logget ind som ${user.email}`;
+    setAdminVisible(true);
+    await loadRemoteData();
+    buildMatchOptions();
+    loadMatch();
+  } else {
+    setAdminVisible(false);
+    loginStatus.textContent = user ? `Du er logget ind som ${user.email}, men den mail har ikke admin-adgang.` : "Ikke logget ind.";
+  }
+}
+
+async function sendLoginLink() {
+  const email = document.getElementById("emailInput").value.trim();
+  loginStatus.textContent = "Sender login-link...";
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href.split("#")[0] }
+  });
+  loginStatus.textContent = error ? "Fejl: " + error.message : "Login-link sendt. Tjek din mail.";
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  await checkSession();
+}
 
 function options(list, selected=""){
   return list.map(p => `<option value="${p}" ${p===selected ? "selected":""}>${p}</option>`).join("");
@@ -25,6 +75,7 @@ function addSelectRow(containerId, value="", note="", withNote=false){
   wrap.querySelector("button").addEventListener("click", ()=>wrap.remove());
   document.getElementById(containerId).appendChild(wrap);
 }
+
 function addGoalkeeperRow(value="", goalsAgainst="", cleanSheet=false){
   const wrap = document.createElement("div");
   wrap.className = "event-row goalkeeper-row";
@@ -37,6 +88,7 @@ function addGoalkeeperRow(value="", goalsAgainst="", cleanSheet=false){
   wrap.querySelector("button").addEventListener("click", ()=>wrap.remove());
   document.getElementById("goalkeeperRows").appendChild(wrap);
 }
+
 function getSelectValues(containerId){
   return [...document.querySelectorAll(`#${containerId} select`)].map(s=>s.value).filter(Boolean);
 }
@@ -54,7 +106,18 @@ function getGoalkeeperValues(){
   })).filter(x=>x.navn);
 }
 
+function buildMatchOptions() {
+  matchSelect.innerHTML = "";
+  data.matches.forEach(m=>{
+    const opt = document.createElement("option");
+    opt.value = m.kampnr;
+    opt.textContent = `${fmtDate(m.datoTid)} · ${matchName(m)}${m.spillet ? " · " + m.resultat : ""}`;
+    matchSelect.appendChild(opt);
+  });
+}
+
 function loadMatch(){
+  if (!matchSelect.value) return;
   const m = data.matches.find(x => String(x.kampnr) === matchSelect.value);
   document.getElementById("scoreFor").value = m.maalFor ?? "";
   document.getElementById("scoreAgainst").value = m.maalImod ?? "";
@@ -73,21 +136,7 @@ function loadMatch(){
   (m.oel||[]).forEach(v=>addSelectRow("beerRows", v));
 }
 
-data.matches.forEach(m=>{
-  const opt = document.createElement("option");
-  opt.value = m.kampnr;
-  opt.textContent = `${fmtDate(m.datoTid)} · ${matchName(m)}${m.spillet ? " · " + m.resultat : ""}`;
-  matchSelect.appendChild(opt);
-});
-matchSelect.addEventListener("change", loadMatch);
-
-document.getElementById("addGoalkeeper").addEventListener("click", ()=>addGoalkeeperRow());
-document.getElementById("addGoal").addEventListener("click", ()=>addSelectRow("goalsRows"));
-document.getElementById("addAssist").addEventListener("click", ()=>addSelectRow("assistRows"));
-document.getElementById("addBoeh").addEventListener("click", ()=>addSelectRow("boehRows", "", "", true));
-document.getElementById("addBeer").addEventListener("click", ()=>addSelectRow("beerRows"));
-
-document.getElementById("generate").addEventListener("click", ()=>{
+function updateLocalDataFromForm() {
   const m = data.matches.find(x => String(x.kampnr) === matchSelect.value);
   const scoreFor = document.getElementById("scoreFor").value;
   const scoreAgainst = document.getElementById("scoreAgainst").value;
@@ -102,19 +151,34 @@ document.getElementById("generate").addEventListener("click", ()=>{
   m.assists = getSelectValues("assistRows");
   m.boehmaend = getBoehValues();
   m.oel = getSelectValues("beerRows");
-  generatedText = "window.B74_DATA = " + JSON.stringify(data, null, 2) + ";\n";
-  document.getElementById("output").textContent = generatedText;
-  document.getElementById("download").disabled = false;
-});
+}
 
-document.getElementById("download").addEventListener("click", ()=>{
-  const blob = new Blob([generatedText], {type:"text/javascript"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "data.js";
-  a.click();
-  URL.revokeObjectURL(url);
-});
+async function saveOnline() {
+  saveStatus.textContent = "Gemmer...";
+  updateLocalDataFromForm();
 
-loadMatch();
+  const { error } = await sb
+    .from(CONFIG.table)
+    .update({ data, updated_at: new Date().toISOString() })
+    .eq("id", CONFIG.rowId);
+
+  if (error) {
+    saveStatus.textContent = "Fejl: " + error.message;
+  } else {
+    saveStatus.textContent = "Gemt! Forsiden er opdateret.";
+    buildMatchOptions();
+  }
+}
+
+matchSelect.addEventListener("change", loadMatch);
+document.getElementById("loginButton").addEventListener("click", sendLoginLink);
+document.getElementById("logoutButton").addEventListener("click", logout);
+document.getElementById("addGoalkeeper").addEventListener("click", ()=>addGoalkeeperRow());
+document.getElementById("addGoal").addEventListener("click", ()=>addSelectRow("goalsRows"));
+document.getElementById("addAssist").addEventListener("click", ()=>addSelectRow("assistRows"));
+document.getElementById("addBoeh").addEventListener("click", ()=>addSelectRow("boehRows", "", "", true));
+document.getElementById("addBeer").addEventListener("click", ()=>addSelectRow("beerRows"));
+document.getElementById("saveOnline").addEventListener("click", saveOnline);
+
+setAdminVisible(false);
+checkSession();

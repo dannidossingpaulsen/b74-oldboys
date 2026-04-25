@@ -10,18 +10,26 @@
   <header class="hero">
     <div class="eyebrow">Admin · uden login</div>
     <h1>Kampkontoret</h1>
-    <p>Udfyld kampen med klik-af. Tryk derefter “Lav ny datafil” og erstat <code>data.js</code> på GitHub.</p>
+    <p>Log ind, udfyld kampen med klik-af og tryk <strong>Gem kamp</strong>. Så opdateres sitet automatisk.</p>
     <div class="hero-actions">
       <a class="button ghost" href="index.html">Til forsiden</a>
     </div>
   </header>
 
   <main>
-    <section class="card notice">
-      <strong>Første version:</strong> Denne side gemmer ikke direkte online endnu. Den laver en ny <code>data.js</code>, som du uploader/indsætter på GitHub.
+    <section class="card notice" id="loginBox">
+      <h2>Login</h2>
+      <p class="small">Kun admin-mailen kan gemme ændringer.</p>
+      <label for="emailInput">Email</label>
+      <input id="emailInput" type="email" value="dannipaulsen@gmail.com">
+      <div class="hero-actions">
+        <button class="button" id="loginButton" type="button">Send login-link</button>
+        <button class="button ghost" id="logoutButton" type="button" style="display:none">Log ud</button>
+      </div>
+      <p class="small" id="loginStatus"></p>
     </section>
 
-    <section class="card">
+    <section class="card admin-panel">
       <h2>1. Vælg kamp</h2>
       <label for="matchSelect">Kamp</label>
       <select id="matchSelect"></select>
@@ -38,20 +46,20 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card admin-panel">
       <h2>2. Deltagere</h2>
       <p class="small">Klik dem af, der spillede. Det er det eneste sted, “kampe spillet” kommer fra.</p>
       <div id="participants" class="check-grid"></div>
     </section>
 
-    <section class="card">
+    <section class="card admin-panel">
       <h2>3. Målmand</h2>
       <p class="small">Tilføj én målmand. Hvis to har delt kampen, kan du tilføje begge og fordele mål imod.</p>
       <div id="goalkeeperRows" class="row-list"></div>
       <button class="button" id="addGoalkeeper" type="button">+ Tilføj målmand</button>
     </section>
 
-    <section class="grid two">
+    <section class="grid two admin-panel">
       <article class="card">
         <h2>4. Mål</h2>
         <div id="goalsRows" class="row-list"></div>
@@ -64,29 +72,30 @@
       </article>
     </section>
 
-    <section class="card">
+    <section class="card admin-panel">
       <h2>6. Bøhmænd</h2>
       <div id="boehRows" class="row-list"></div>
       <button class="button" id="addBoeh" type="button">+ Tilføj bøhmand</button>
     </section>
 
-    <section class="card">
+    <section class="card admin-panel">
       <h2>7. Øl</h2>
       <p class="small">Kun relevant ved hjemmekampe, men systemet blander sig ikke.</p>
       <div id="beerRows" class="row-list"></div>
       <button class="button" id="addBeer" type="button">+ Tilføj ølmand</button>
     </section>
 
-    <section class="card">
-      <h2>8. Lav ny datafil</h2>
-      <button class="button" id="generate" type="button">Lav ny data.js</button>
-      <button class="button ghost" id="download" type="button" disabled>Download data.js</button>
-      <p class="small">Når filen er lavet: Upload/erstat <code>data.js</code> i GitHub-repoet.</p>
-      <pre id="output"></pre>
+    <section class="card admin-panel">
+      <h2>8. Gem online</h2>
+      <button class="button" id="saveOnline" type="button">Gem kamp</button>
+      <p class="small" id="saveStatus"></p>
+      <pre id="output" style="display:none"></pre>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

@@ -1,14 +1,15 @@
-# B74 Oldboys Statistik
+# B74 Old Boys Statistik
 
-Statisk website til GitHub Pages.
+Version med Supabase:
+- Offentlig side henter data fra Supabase.
+- Admin logger ind med mail-link.
+- Admin kan gemme kampdata direkte online.
 
-## Opdatering efter kamp
-1. Åbn `admin.html`
-2. Vælg kamp
-3. Udfyld resultat, deltagere, målmand, mål, assists, bøhmænd og øl
-4. Tryk “Lav ny data.js”
-5. Download `data.js`
-6. Erstat `data.js` i GitHub-repoet og commit ændringen
+## Før upload
+1. Kør `setup_supabase.sql` i Supabase SQL Editor.
+2. Gå til Supabase → Authentication → URL Configuration.
+3. Sæt Site URL til din GitHub Pages-adresse.
+4. Tilføj admin-siden som Redirect URL.
 
-## Stadionadresser
-Der er et felt `adresse` for hver kamp i `data.js`. Hvis adressen er tom, bruger siden Google Maps-søgning på stednavnet.
+## Upload
+Upload/erstat alle filer i GitHub-repoet.

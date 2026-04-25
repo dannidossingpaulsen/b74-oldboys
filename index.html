@@ -10,7 +10,7 @@
   <header class="hero">
     <div class="eyebrow">B74 Silkeborg Old Boys · 2026</div>
     <h1>Statistikcentralen</h1>
-    <p>Statistik-side for Silkeborgs tungeste mandskab.</p>
+    <p>Topscorere, assists, kampe, bøhmænd, øl, målmandsstatistik og kampprogram. Alt det vigtige. Intet af det professionelle.</p>
     <div class="hero-actions">
       <a class="button" href="#stats">Se stats</a>
       <a class="button ghost" href="admin.html">Admin</a>
@@ -38,9 +38,13 @@
 
     <section>
       <h2>Målmandsstatistik</h2>
-      <div class="grid">
-  <article class="card" id="goalkeeperTable"></article>
-</div>
+      <div class="grid two">
+        <article class="card" id="goalkeeperTable"></article>
+        <article class="card">
+          <h3>🧤 Sådan tælles det</h3>
+          <p class="small">I admin vælger du målmand og mål imod efter hver kamp. Hvis to deler kampen, kan du tilføje begge og fordele målene imellem dem.</p>
+        </article>
+      </div>
     </section>
 
     <section>
@@ -61,7 +65,9 @@
     Bygget til B74 Old Boys. Kreeret og opdateret af Danni “Muren” Paulsen.
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

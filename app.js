@@ -1,4 +1,5 @@
-const DATA = window.B74_DATA;
+const CONFIG = window.B74_SUPABASE;
+let DATA = window.B74_DATA;
 const TEAM = "B74 Silkeborg";
 
 function fmtDate(iso) {
@@ -27,6 +28,30 @@ function resultType(m){
   return "draw";
 }
 
+
+const sb = window.supabase && CONFIG ? window.supabase.createClient(CONFIG.url, CONFIG.key) : null;
+
+async function loadData() {
+  if (!sb) return DATA;
+  const { data, error } = await sb
+    .from(CONFIG.table)
+    .select("data")
+    .eq("id", CONFIG.rowId)
+    .single();
+
+  if (error) {
+    console.warn("Bruger fallback-data.js:", error.message);
+    return DATA;
+  }
+
+  if (data && data.data && data.data.matches && data.data.matches.length) {
+    return data.data;
+  }
+
+  return DATA;
+}
+
+function renderSite(){
 const played = DATA.matches.filter(m=>m.spillet);
 const upcoming = DATA.matches.filter(m=>!m.spillet).sort((a,b)=>new Date(a.datoTid)-new Date(b.datoTid));
 const allGoals = played.flatMap(m=>m.maal || []);
@@ -125,3 +150,11 @@ document.getElementById("boehmandLog").innerHTML = log.length ? log.map(b => `
     <span class="small">${b.note}</span>
   </div>
 `).join("") : `<p class="small">Ingen bøhmænd. Endnu.</p>`;
+
+}
+
+
+loadData().then(loaded => {
+  DATA = loaded;
+  renderSite();
+});
