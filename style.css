@@ -43,3 +43,50 @@ textarea{min-height:80px}.check-grid{display:grid;grid-template-columns:repeat(3
 pre{white-space:pre-wrap;background:#050609;padding:1rem;border-radius:18px;border:1px solid var(--border);max-height:320px;overflow:auto}
 @media (max-width: 900px){.scoreboard{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.two,.grid.five,.form-grid{grid-template-columns:1fr}.check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:3.4rem}.goalkeeper-row{grid-template-columns:1fr}}
 @media (max-width: 520px){.scoreboard{grid-template-columns:1fr 1fr}.check-grid{grid-template-columns:1fr}th,td{padding:.55rem .35rem;font-size:.9rem}.hero{padding-top:2.5rem}}
+@media (max-width: 700px) {
+  #fixturesTable thead {
+    display: none;
+  }
+
+  #fixturesTable,
+  #fixturesTable tbody,
+  #fixturesTable tr,
+  #fixturesTable td {
+    display: block;
+    width: 100%;
+  }
+
+  #fixturesTable tr {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #fixturesTable td {
+    border-bottom: none;
+    padding: 0.25rem 0;
+  }
+
+  #fixturesTable td:nth-child(1)::before {
+    content: "Dato: ";
+    color: var(--gold);
+    font-weight: 800;
+  }
+
+  #fixturesTable td:nth-child(3)::before {
+    content: "Sted: ";
+    color: var(--gold);
+    font-weight: 800;
+  }
+
+  #fixturesTable td:nth-child(4)::before {
+    content: "Resultat: ";
+    color: var(--gold);
+    font-weight: 800;
+  }
+
+  #fixturesTable .players-line {
+    display: block;
+    margin-top: 0.5rem;
+    line-height: 1.45;
+  }
+}
