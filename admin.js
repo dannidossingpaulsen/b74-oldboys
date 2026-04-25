@@ -21,7 +21,14 @@ function fmtDate(iso) {
   });
 }
 
+// 🔥 VIGTIG: både style OG body class
 function setAdminVisible(isVisible) {
+  if (isVisible) {
+    document.body.classList.add("admin-logged-in");
+  } else {
+    document.body.classList.remove("admin-logged-in");
+  }
+
   document.querySelectorAll(".admin-panel").forEach((el) => {
     if (!isVisible) {
       el.style.display = "none";
@@ -50,18 +57,19 @@ async function loadRemoteData() {
   }
 }
 
+// 🔥 VIGTIG: robust session-check
 async function checkSession() {
-  const {
-    data: { session },
-  } = await sb.auth.getSession();
-
+  const { data } = await sb.auth.getSession();
+  const session = data.session;
   const user = session?.user;
+
   const ok = user && user.email === CONFIG.adminEmail;
 
   document.getElementById("logoutButton").style.display = user ? "" : "none";
 
   if (ok) {
     loginStatus.textContent = `Logget ind som ${user.email}`;
+
     setAdminVisible(true);
 
     await loadRemoteData();
@@ -77,6 +85,13 @@ async function checkSession() {
     }
   }
 }
+
+// 🔥 VIGTIG: håndter login redirect
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN") {
+    checkSession();
+  }
+});
 
 async function sendLoginLink() {
   const email = document.getElementById("emailInput").value.trim();
@@ -144,7 +159,7 @@ function addGoalkeeperRow(value = "", goalsAgainst = "", cleanSheet = false) {
     <input type="number" min="0" placeholder="Mål imod" value="${
       goalsAgainst ?? ""
     }">
-    <label class="check" style="margin:0;color:var(--text);font-weight:700">
+    <label class="check">
       <input type="checkbox" ${cleanSheet ? "checked" : ""}> Clean sheet
     </label>
     <button class="button ghost" type="button">Fjern</button>
@@ -212,60 +227,10 @@ function loadMatch() {
       `
     )
     .join("");
-
-  document.getElementById("goalkeeperRows").innerHTML = "";
-  document.getElementById("goalsRows").innerHTML = "";
-  document.getElementById("assistRows").innerHTML = "";
-  document.getElementById("boehRows").innerHTML = "";
-  document.getElementById("beerRows").innerHTML = "";
-
-  (m.maalmaend || []).forEach((v) =>
-    addGoalkeeperRow(v.navn, v.maalImod, v.cleanSheet)
-  );
-  (m.maal || []).forEach((v) => addSelectRow("goalsRows", v));
-  (m.assists || []).forEach((v) => addSelectRow("assistRows", v));
-  (m.boehmaend || []).forEach((v) =>
-    addSelectRow("boehRows", v.navn, v.note, true)
-  );
-  (m.oel || []).forEach((v) => addSelectRow("beerRows", v));
-}
-
-function updateLocalDataFromForm() {
-  const m = data.matches.find((x) => String(x.kampnr) === matchSelect.value);
-  if (!m) return;
-
-  const scoreFor = document.getElementById("scoreFor").value;
-  const scoreAgainst = document.getElementById("scoreAgainst").value;
-
-  m.maalFor = scoreFor === "" ? null : Number(scoreFor);
-  m.maalImod = scoreAgainst === "" ? null : Number(scoreAgainst);
-
-  const isHome = m.hjemmehold.includes(TEAM);
-
-  m.resultat =
-    scoreFor !== "" && scoreAgainst !== ""
-      ? isHome
-        ? `${scoreFor} - ${scoreAgainst}`
-        : `${scoreAgainst} - ${scoreFor}`
-      : "";
-
-  m.spillet = scoreFor !== "" && scoreAgainst !== "";
-
-  m.deltagere = [...document.querySelectorAll("#participants input:checked")].map(
-    (cb) => cb.value
-  );
-
-  m.maalmaend = getGoalkeeperValues();
-  m.maal = getSelectValues("goalsRows");
-  m.assists = getSelectValues("assistRows");
-  m.boehmaend = getBoehValues();
-  m.oel = getSelectValues("beerRows");
 }
 
 async function saveOnline() {
   saveStatus.textContent = "Gemmer...";
-
-  updateLocalDataFromForm();
 
   const { error } = await sb
     .from(CONFIG.table)
@@ -275,32 +240,14 @@ async function saveOnline() {
     })
     .eq("id", CONFIG.rowId);
 
-  if (error) {
-    saveStatus.textContent = "Fejl: " + error.message;
-  } else {
-    saveStatus.textContent = "Gemt! Forsiden er opdateret.";
-    buildMatchOptions();
-  }
+  saveStatus.textContent = error
+    ? "Fejl: " + error.message
+    : "Gemt! 🔥";
 }
 
 matchSelect.addEventListener("change", loadMatch);
 document.getElementById("loginButton").addEventListener("click", sendLoginLink);
 document.getElementById("logoutButton").addEventListener("click", logout);
-document
-  .getElementById("addGoalkeeper")
-  .addEventListener("click", () => addGoalkeeperRow());
-document
-  .getElementById("addGoal")
-  .addEventListener("click", () => addSelectRow("goalsRows"));
-document
-  .getElementById("addAssist")
-  .addEventListener("click", () => addSelectRow("assistRows"));
-document
-  .getElementById("addBoeh")
-  .addEventListener("click", () => addSelectRow("boehRows", "", "", true));
-document
-  .getElementById("addBeer")
-  .addEventListener("click", () => addSelectRow("beerRows"));
 document.getElementById("saveOnline").addEventListener("click", saveOnline);
 
 setAdminVisible(false);
