@@ -45,3 +45,10 @@ pre{white-space:pre-wrap;background:#050609;padding:1rem;border-radius:18px;bord
 @media (max-width: 520px){.scoreboard{grid-template-columns:1fr 1fr}.check-grid{grid-template-columns:1fr}th,td{padding:.55rem .35rem;font-size:.9rem}.hero{padding-top:2.5rem}}
 
 .admin-panel{display:none}
+body.admin-logged-in .admin-panel {
+  display: block !important;
+}
+
+body.admin-logged-in .grid.admin-panel {
+  display: grid !important;
+}
