@@ -52,3 +52,6 @@ body.admin-logged-in .admin-panel {
 body.admin-logged-in .grid.admin-panel {
   display: grid !important;
 }
+#goalkeeperTable {
+  grid-column: 1 / -1;
+}
