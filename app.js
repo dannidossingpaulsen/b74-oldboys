@@ -252,13 +252,15 @@ function renderSite() {
     countList(allApps)
   );
   const boehEl = document.getElementById("boehmandTable");
+
 renderRanking(boehEl, countList(allBoeh));
 
-boehEl.innerHTML += `
-  <div style="margin-top:1rem">
-    <a href="#boeh-protokol" class="map-link">Gå til bøhmands-detaljer →</a>
-  </div>
-`;
+// tilføj link EFTER rendering
+const link = document.createElement("div");
+link.style.marginTop = "1rem";
+link.innerHTML = `<a href="#boeh-protokol" class="map-link">Gå til bøhmands-detaljer →</a>`;
+
+boehEl.appendChild(link);
   renderRanking(
     document.getElementById("beerTable"),
     countList(allBeer),
