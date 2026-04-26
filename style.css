@@ -55,3 +55,6 @@ body.admin-logged-in .grid.admin-panel {
 #goalkeeperTable {
   grid-column: 1 / -1;
 }
+main section {
+  margin-bottom: 2.5rem;
+}
