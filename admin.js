@@ -101,8 +101,8 @@ async function sendLoginLink() {
   const { error } = await sb.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: window.location.href.split("#")[0],
-    },
+  emailRedirectTo: window.location.origin + "/admin.html",
+},
   });
 
   loginStatus.textContent = error
