@@ -251,7 +251,14 @@ function renderSite() {
     document.getElementById("appearancesTable"),
     countList(allApps)
   );
-  renderRanking(document.getElementById("boehmandTable"), countList(allBoeh));
+  const boehEl = document.getElementById("boehmandTable");
+renderRanking(boehEl, countList(allBoeh));
+
+boehEl.innerHTML += `
+  <div style="margin-top:1rem">
+    <a href="#boeh-protokol" class="map-link">Gå til bøhmands-detaljer →</a>
+  </div>
+`;
   renderRanking(
     document.getElementById("beerTable"),
     countList(allBeer),
