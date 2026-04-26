@@ -255,12 +255,14 @@ function renderSite() {
 
 renderRanking(boehEl, countList(allBoeh));
 
-// tilføj link EFTER rendering
-const link = document.createElement("div");
-link.style.marginTop = "1rem";
-link.innerHTML = `<a href="#boeh-protokol" class="map-link">Gå til bøhmands-detaljer →</a>`;
-
-boehEl.appendChild(link);
+boehEl.insertAdjacentHTML(
+  "beforeend",
+  `
+    <div style="margin-top:1rem; padding-top:.8rem; border-top:1px solid var(--border);">
+      <a href="#boeh-protokol" class="map-link">Gå til bøhmands-detaljer →</a>
+    </div>
+  `
+);
   renderRanking(
     document.getElementById("beerTable"),
     countList(allBeer),
