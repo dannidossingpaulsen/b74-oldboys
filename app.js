@@ -50,7 +50,50 @@ async function loadData() {
 
   return DATA;
 }
+async function renderStandings() {
+  if (!sb) return;
 
+  const { data, error } = await sb
+    .from("b74_standings")
+    .select("*")
+    .order("placering", { ascending: true });
+
+  if (error) {
+    console.error("Kunne ikke hente stilling:", error.message);
+    return;
+  }
+
+  if (!data || !data.length) return;
+
+  document.getElementById("standingsTable").innerHTML = `
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Hold</th>
+        <th>K</th>
+        <th>V</th>
+        <th>U</th>
+        <th>T</th>
+        <th>Mål</th>
+        <th>P</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.map(row => `
+        <tr ${row.hold.includes("B74") ? 'style="font-weight:900;color:var(--gold)"' : ""}>
+          <td>${row.placering}</td>
+          <td>${row.hold}</td>
+          <td>${row.kampe}</td>
+          <td>${row.v}</td>
+          <td>${row.u}</td>
+          <td>${row.t}</td>
+          <td>${row.score}</td>
+          <td><strong>${row.point}</strong></td>
+        </tr>
+      `).join("")}
+    </tbody>
+  `;
+}
 function renderSite(){
 const played = DATA.matches.filter(m=>m.spillet);
 const upcoming = DATA.matches.filter(m=>!m.spillet).sort((a,b)=>new Date(a.datoTid)-new Date(b.datoTid));
