@@ -1,19 +1,40 @@
 import os
+import urllib3
 from datetime import datetime, timezone
 
 import requests
 from bs4 import BeautifulSoup
+from requests.exceptions import SSLError
 
 DGI_URL = "https://minidraet.dgi.dk/forening/0663200/hold/312539"
 SUPABASE_URL = "https://kiopzgeuofmeakxosbzq.supabase.co"
 SUPABASE_SECRET_KEY = os.environ["SUPABASE_SECRET_KEY"]
 
-headers = {"User-Agent": "Mozilla/5.0"}
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
 
-res = requests.get(DGI_URL, headers=headers, timeout=30)
-res.raise_for_status()
+def fetch_dgi_page():
+    try:
+        res = requests.get(DGI_URL, headers=headers, timeout=30)
+        res.raise_for_status()
+        return res.text
+    except SSLError:
+        print("⚠️ SSL-fejl hos DGI. Prøver igen uden certifikat-verificering.")
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-soup = BeautifulSoup(res.text, "html.parser")
+        res = requests.get(
+            DGI_URL,
+            headers=headers,
+            timeout=30,
+            verify=False
+        )
+        res.raise_for_status()
+        return res.text
+
+html = fetch_dgi_page()
+
+soup = BeautifulSoup(html, "html.parser")
 tables = soup.find_all("table", class_="footable")
 
 standings = []
@@ -24,7 +45,11 @@ for table in tables:
     if not ("Hold" in headers_text and "Kampe" in headers_text and "Point" in headers_text):
         continue
 
-    rows = table.find("tbody").find_all("tr")
+    tbody = table.find("tbody")
+    if not tbody:
+        continue
+
+    rows = tbody.find_all("tr")
 
     for row in rows:
         cols = [td.get_text(" ", strip=True) for td in row.find_all("td")]
