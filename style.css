@@ -69,3 +69,101 @@ main section {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
+/* Spillerlinks og spillerkort */
+.player-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 207, 51, 0.6);
+  text-underline-offset: .18em;
+}
+
+.player-link:hover {
+  color: var(--gold);
+}
+
+.player-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.player-modal.open {
+  display: block;
+}
+
+.player-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(4px);
+}
+
+.player-modal-card {
+  position: relative;
+  width: min(720px, calc(100% - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  margin: 1rem auto;
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  color: var(--text);
+}
+
+.player-modal-close {
+  position: absolute;
+  top: .75rem;
+  right: .9rem;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+  border-radius: 999px;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.player-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.player-stat-grid div {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  border-radius: 18px;
+  padding: .85rem;
+}
+
+.player-stat-grid strong {
+  display: block;
+  color: var(--gold);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.player-stat-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: .35rem;
+}
+
+@media (max-width: 520px) {
+  .player-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
