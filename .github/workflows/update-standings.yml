@@ -1,12 +1,16 @@
-name: Update DGI standings
+name: Update DGI standings and fixtures
 
 on:
   schedule:
-    - cron: "0 20 * * 2"
+    - cron: "7 22 * * 1"
+      timezone: "Europe/Copenhagen"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  update-standings:
+  update-dgi:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +26,21 @@ jobs:
         run: |
           pip install requests beautifulsoup4
 
-      - name: Update standings
+      - name: Update DGI standings and fixtures
         env:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           python update_standings.py
+
+      - name: Keep scheduled workflow active
+        if: github.event_name == 'schedule'
+        run: |
+          DAY="$(date -u +%d)"
+          if [ "$DAY" -le 7 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "chore: keep DGI workflow active"
+            git push
+          else
+            echo "Ikke første uge i måneden – intet keepalive-commit."
+          fi
