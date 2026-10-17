@@ -1,7 +1,7 @@
 const CONFIG = window.B74_SUPABASE;
 let data = structuredClone(window.B74_DATA);
 let players = data.players;
-let goalkeepers = data.goalkeepers || ["Danni", "Ugle"];
+let goalkeepers = [...new Set([...(data.goalkeepers || ["Danni", "Ugle"]), "Hjalti"])];
 let selectedPhase = "Efterår";
 
 const TEAM = "B74 Silkeborg";
@@ -69,7 +69,8 @@ async function loadRemoteData() {
   if (row && row.data && row.data.matches) {
     data = structuredClone(row.data);
     players = data.players || [];
-    goalkeepers = data.goalkeepers || ["Danni", "Ugle"];
+    goalkeepers = [...new Set([...(data.goalkeepers || ["Danni", "Ugle"]), "Hjalti"])];
+    data.goalkeepers = goalkeepers;
     sortPlayers();
   }
 }
@@ -90,6 +91,7 @@ async function checkSession() {
     await loadRemoteData();
     ensurePhaseFilter();
     renderPlayerList();
+    loadAwards();
     buildMatchOptions();
     loadMatch();
   } else {
@@ -197,6 +199,7 @@ async function addPlayer() {
 
   input.value = "";
   renderPlayerList();
+  loadAwards();
   buildMatchOptions();
   loadMatch();
 }
@@ -213,6 +216,7 @@ function ensurePhaseFilter() {
   select.innerHTML = `
     <option value="Forår">Forår</option>
     <option value="Efterår" selected>Efterår</option>
+    <option value="Ekstra">Ekstra-sæson</option>
   `;
 
   select.addEventListener("change", () => {
@@ -309,6 +313,10 @@ function loadMatch() {
   const m = data.matches.find((x) => String(x.kampnr) === matchSelect.value);
   if (!m) return;
 
+  const cancellation = document.getElementById("cancelledMatch");
+  cancellation.checked = !!m.aflyst;
+  document.getElementById("forfeitingTeam").value = m.taberdomt || "";
+  toggleCancelledFields();
   document.getElementById("scoreFor").value = m.maalFor ?? "";
   document.getElementById("scoreAgainst").value = m.maalImod ?? "";
 
@@ -354,6 +362,24 @@ function updateLocalDataFromForm() {
   const scoreAgainst = document.getElementById("scoreAgainst").value;
 
   m.phase = m.phase || selectedPhase;
+  m.aflyst = document.getElementById("cancelledMatch").checked;
+  m.taberdomt = m.aflyst ? document.getElementById("forfeitingTeam").value : "";
+  if (m.aflyst && !m.taberdomt) throw new Error("Vælg hvilket hold der taberdømmes.");
+  if (m.aflyst) {
+    const b74Forfeit = m.taberdomt === "b74";
+    m.maalFor = b74Forfeit ? 0 : 3;
+    m.maalImod = b74Forfeit ? 3 : 0;
+    const home = m.hjemmehold.includes(TEAM);
+    m.resultat = home ? `${m.maalFor} - ${m.maalImod}` : `${m.maalImod} - ${m.maalFor}`;
+    m.spillet = true;
+    m.deltagere = [];
+    m.maalmaend = [];
+    m.maal = [];
+    m.assists = [];
+    m.boehmaend = [];
+    m.oel = [];
+    return;
+  }
   m.maalFor = scoreFor === "" ? null : Number(scoreFor);
   m.maalImod = scoreAgainst === "" ? null : Number(scoreAgainst);
 
@@ -382,7 +408,7 @@ function updateLocalDataFromForm() {
 async function saveOnline() {
   saveStatus.textContent = "Gemmer...";
 
-  updateLocalDataFromForm();
+  try { updateLocalDataFromForm(); } catch (err) { saveStatus.textContent = err.message; return; }
 
   const ok = await saveAllData(saveStatus, "Gemt! Forsiden er opdateret.");
   if (!ok) return;
@@ -390,6 +416,37 @@ async function saveOnline() {
   buildMatchOptions();
 }
 
+function toggleCancelledFields() {
+  const checked = document.getElementById("cancelledMatch").checked;
+  document.getElementById("forfeitOptions").style.display = checked ? "block" : "none";
+  document.querySelectorAll("#scoreFor, #scoreAgainst").forEach(el => { el.disabled = checked; });
+  for (const id of ["participants", "goalkeeperRows", "goalsRows", "assistRows", "boehRows", "beerRows"]) {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = checked ? ".45" : "1";
+  }
+}
+document.getElementById("cancelledMatch").addEventListener("change", toggleCancelledFields);
+
+async function saveAwards() {
+  data.awards2026 = {
+    player: document.getElementById("awardPlayer").value,
+    boehmand: document.getElementById("awardBoehmand").value,
+    published: document.getElementById("publishAwards").checked
+  };
+  const status = document.getElementById("awardStatus");
+  status.textContent = "Gemmer...";
+  await saveAllData(status, "Årets kåringer er gemt.");
+}
+function loadAwards() {
+  const awards = data.awards2026 || {};
+  for (const [id, val] of [["awardPlayer", awards.player], ["awardBoehmand", awards.boehmand]]) {
+    const el = document.getElementById(id);
+    el.innerHTML = '<option value="">Vælg spiller</option>' + playerOptions(val);
+    el.value = val || "";
+  }
+  document.getElementById("publishAwards").checked = !!awards.published;
+}
+document.getElementById("saveAwards").addEventListener("click", saveAwards);
 matchSelect.addEventListener("change", loadMatch);
 
 document.getElementById("loginButton").addEventListener("click", sendLoginLink);
