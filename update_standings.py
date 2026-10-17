@@ -7,7 +7,7 @@ import urllib3
 from bs4 import BeautifulSoup
 from requests.exceptions import SSLError
 
-DGI_URL = "https://minidraet.dgi.dk/turnering/48629/raekke/149966/pulje/85021"
+DGI_URL = "https://minidraet.dgi.dk/turnering/48629/raekke/152835/pulje/86918"
 SUPABASE_URL = "https://kiopzgeuofmeakxosbzq.supabase.co"
 SUPABASE_SECRET_KEY = os.environ["SUPABASE_SECRET_KEY"]
 
@@ -16,7 +16,7 @@ DATA_ROW_ID = "main"
 STANDINGS_TABLE = "b74_standings"
 
 TEAM = "B74 Silkeborg"
-PHASE = "Efterår"
+PHASE = "Ekstra"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (compatible; B74Oldboys/1.0)"
@@ -291,7 +291,6 @@ def merge_fixtures(site_data, dgi_fixtures):
                 "hjemmehold",
                 "udehold",
                 "sted",
-                "adresse",
                 "phase",
             ):
                 merged[field] = dgi_match[field]
@@ -373,9 +372,9 @@ def main():
         )
 
     # Først når begge parsere har fundet gyldige data, skriver vi noget.
-    update_standings(standings)
-
+    # Den ordinære efterårsstilling i b74_standings er afsluttet og må ikke overskrives.
     site_data = load_site_data()
+    site_data["extraStandings2026"] = standings
     site_data = merge_fixtures(site_data, fixtures)
     save_site_data(site_data)
 
