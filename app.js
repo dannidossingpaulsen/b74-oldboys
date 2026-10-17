@@ -190,7 +190,7 @@ function renderFixturesByPhase() {
   const table = document.getElementById("fixturesTable");
   if (!table) return;
 
-  const phases = ["Forår", "Efterår"];
+  const phases = ["Forår", "Efterår", "Ekstra"];
   const rows = [];
 
   phases.forEach((phase) => {
@@ -199,7 +199,7 @@ function renderFixturesByPhase() {
 
     rows.push(`
       <tr class="phase-row">
-        <td colspan="4"><strong>${phase} 2026</strong></td>
+        <td colspan="4"><strong>${phase === "Ekstra" ? "Ekstra-sæson" : phase} 2026</strong></td>
       </tr>
     `);
 
@@ -382,7 +382,38 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closePlayerModal();
 });
 
+function ensureNewSections() {
+  const standings = document.getElementById("standingsTable")?.closest("section");
+  if (standings && !document.getElementById("extraStandingsTable")) {
+    const section = document.createElement("section");
+    section.innerHTML = `<h2>Stilling – Ekstra-sæson 2026</h2><p class="section-link"><a href="https://minidraet.dgi.dk/turnering/48629/raekke/152835/pulje/86918" target="_blank" rel="noopener">Se ekstra-sæsonen hos DGI</a></p><div class="card table-wrap"><table id="extraStandingsTable"></table></div>`;
+    standings.insertAdjacentElement("afterend", section);
+  }
+  const stats = document.getElementById("stats");
+  if (stats && !document.getElementById("awards2026")) {
+    const awards = document.createElement("section");
+    awards.id = "awards2026";
+    awards.hidden = true;
+    stats.insertAdjacentElement("beforebegin", awards);
+  }
+}
+function renderExtraStandings() {
+  const el = document.getElementById("extraStandingsTable");
+  if (!el) return;
+  const rows = DATA.extraStandings2026 || [];
+  if (!rows.length) { el.innerHTML = '<tbody><tr><td>Afventer første synkronisering fra DGI.</td></tr></tbody>'; return; }
+  el.innerHTML = `<thead><tr><th>#</th><th>Hold</th><th>K</th><th>V</th><th>U</th><th>T</th><th>Mål</th><th>P</th></tr></thead><tbody>${rows.map(r => `<tr ${r.hold.includes("B74") ? 'style="color:var(--gold);font-weight:900"' : ""}><td>${r.placering}</td><td>${escapeHtml(r.hold)}</td><td>${r.kampe}</td><td>${r.v}</td><td>${r.u}</td><td>${r.t}</td><td>${escapeHtml(r.score)}</td><td>${r.point}</td></tr>`).join("")}</tbody>`;
+}
+function renderAwards() {
+  const el = document.getElementById("awards2026");
+  if (!el) return;
+  const a = DATA.awards2026 || {};
+  if (!a.published || !a.player || !a.boehmand) { el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = `<h2>🏆 Årets kåringer 2026</h2><div class="grid two"><article class="card"><div class="eyebrow">⭐ Årets Spiller</div><h2>${playerButton(a.player)}</h2></article><article class="card"><div class="eyebrow">🤡 Årets Bøhmand</div><h2>${playerButton(a.boehmand)}</h2></article></div>`;
+}
 function renderSite() {
+  ensureNewSections();
   const played = DATA.matches.filter((m) => m.spillet);
   const upcoming = DATA.matches
     .filter((m) => !m.spillet)
@@ -526,6 +557,8 @@ function renderSite() {
   `;
 
   renderFixturesByPhase();
+  renderExtraStandings();
+  renderAwards();
 
   const log = played.flatMap((m) =>
     (m.boehmaend || []).map((b) => ({
