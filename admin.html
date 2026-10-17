@@ -52,6 +52,12 @@
       <label for="matchSelect">Kamp</label>
       <select id="matchSelect"></select>
 
+      <label class="check" style="margin:1rem 0"><input id="cancelledMatch" type="checkbox"> Kampen er aflyst / taberdømt</label>
+      <div id="forfeitOptions" style="display:none">
+        <label for="forfeitingTeam">Hvilket hold er taberdømt?</label>
+        <select id="forfeitingTeam"><option value="">Vælg hold</option><option value="b74">B74 Silkeborg</option><option value="opponent">Modstanderen</option></select>
+        <p class="small">Administrativt resultat 0-3 eller 3-0. Ingen spillerstatistik registreres.</p>
+      </div>
       <div class="form-grid">
         <div>
           <label for="scoreFor">B74-mål</label>
@@ -101,6 +107,16 @@
       <p class="small">Kun relevant ved hjemmekampe, men systemet blander sig ikke.</p>
       <div id="beerRows" class="row-list"></div>
       <button class="button" id="addBeer" type="button">+ Tilføj ølmand</button>
+    </section>
+
+    <section class="card admin-panel">
+      <h2>Årets kåringer 2026</h2>
+      <p class="small">Vælg vinderne efter festen. De vises først på forsiden, når du markerer offentliggør.</p>
+      <label for="awardPlayer">Årets Spiller</label><select id="awardPlayer"></select>
+      <label for="awardBoehmand">Årets Bøhmand</label><select id="awardBoehmand"></select>
+      <label class="check" style="margin-top:1rem"><input type="checkbox" id="publishAwards"> Offentliggør kåringerne på forsiden</label>
+      <button class="button" type="button" id="saveAwards" style="margin-top:1rem">Gem kåringer</button>
+      <p id="awardStatus" class="small"></p>
     </section>
 
     <section class="card admin-panel">
